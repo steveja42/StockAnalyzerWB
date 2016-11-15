@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Office.Interop.Excel;
 
@@ -49,11 +45,18 @@ namespace StockAnalyzerWB
          Worksheet sheet;
          Workbook sourceWorkbook;
         Stock stock;
- 
+        static ILogger logger;
+
         protected OptionSheet(Workbook sourceWorkbook, Stock? stockIn)
         {
-      
-             
+            if (logger == null)
+            {
+                ILoggerFactory loggerFactory = new LoggerFactory()
+                .AddDebug();
+                logger = loggerFactory.CreateLogger($"XL-Addin-OptionSheet");
+
+            }
+
 
             stock = (Stock)stockIn;
             this.sourceWorkbook = sourceWorkbook;
@@ -80,9 +83,7 @@ namespace StockAnalyzerWB
             }
             sheet.Cells[2, 2].value = stock.symbol;
             sheet.Cells[2, 3].Formula = stock.lastPriceFormula;
-            // app.ErrorCheckingOptions.InconsistentFormula = false;
-
-
+            
 
             int iYear = DateTime.Today.Year;
             int iMonth = DateTime.Today.Month;
@@ -94,6 +95,13 @@ namespace StockAnalyzerWB
             r = GetOptionStrikePrices(stock.symbol, iYear, iMonth + 1, r);
             r = r.Offset[2, 0];
             r = GetOptionStrikePrices(stock.symbol, iYear, iMonth, r);
+
+
+            foreach (Range r2 in sheet.Range["N5:Y300"].Cells)
+            {
+                r2.Errors[XlErrorChecks.xlInconsistentFormula].Ignore = true;
+            }
+
             sheet.Range["A3"].Select();
         }
          Range GetOptionStrikePrices(string stockSymbol, int iYear, int iMonth, Range destRange)
