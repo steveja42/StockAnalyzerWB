@@ -153,8 +153,9 @@ namespace StockAnalyzerWB {
             // 
             // InstructionsLabel
             // 
+            this.InstructionsLabel.BackColor = System.Drawing.Color.Transparent;
             this.InstructionsLabel.Name = "InstructionsLabel";
-            this.InstructionsLabel.Text = "Click a row and press a  button ↓";
+            this.InstructionsLabel.Text = "Select a stock symbol then press a  button →";
             // 
             // buttonGetPutOptions
             // 

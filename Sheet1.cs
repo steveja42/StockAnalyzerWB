@@ -46,7 +46,6 @@ namespace StockAnalyzerWB
 
         private void buttonGetPutOptions_Click(object sender, EventArgs e)
         {
-            // getOptionData(stock.symbol, lastPriceFormula, type);              logger.LogInformation($"getting option data for {stock.symbol} {lastPrice} {type.ToString()}");
             Stock? stock = getStockDataFromSelectedRow();
             if (stock != null)
                new PutOptionSheet(workbook, stock).makeSheet();
@@ -64,8 +63,8 @@ namespace StockAnalyzerWB
 
         Stock? getStockDataFromSelectedRow()
         {
-            const int symbolColumn = 4;
-            const int priceColumn = 5;
+            const int symbolColumn = 1;
+            const int priceColumn = 2;
 
             Stock stock;
 
@@ -88,7 +87,6 @@ namespace StockAnalyzerWB
                 return null;
             }
 
-
             stock.lastPriceFormula = this.Cells[row, priceColumn].Formula;
 
             return stock;
@@ -99,9 +97,6 @@ namespace StockAnalyzerWB
             logger.LogError(message);
             MessageBox.Show(message, "Whoops");
         }
-
-
-
       
 
         #region VSTO Designer generated code
