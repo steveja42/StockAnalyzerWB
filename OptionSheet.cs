@@ -40,7 +40,9 @@ namespace StockAnalyzerWB
         protected string optionLetter;
         protected string webQueryTables; // 12 is header/date, 14 is puts 
 
-         Workbook outputWorkbook;
+        const int symbolColumn = 2;
+
+        Workbook outputWorkbook;
          Microsoft.Office.Interop.Excel.Application app;
          Worksheet sheet;
          Workbook sourceWorkbook;
@@ -61,6 +63,7 @@ namespace StockAnalyzerWB
             stock = (Stock)stockIn;
             this.sourceWorkbook = sourceWorkbook;
         }
+        //makeSheet - fills in a new sheet with option prices for the coming 2 Januarys and the upcoming 2 months
         public void makeSheet()
         { 
             app = sourceWorkbook.Application;
@@ -92,8 +95,12 @@ namespace StockAnalyzerWB
             r = r.Offset[2, 0];
             r = GetOptionStrikePrices(stock.symbol, iYear + 1, 1, r);
             r = r.Offset[2, 0];
-            r = GetOptionStrikePrices(stock.symbol, iYear, iMonth + 1, r);
-            r = r.Offset[2, 0];
+
+            if (iMonth != 12)  //january is already done above
+            {
+                r = GetOptionStrikePrices(stock.symbol, (iMonth == 12 ? iYear + 1 : iYear), (iMonth + 1) % 12, r);
+                r = r.Offset[2, 0];
+            }
             r = GetOptionStrikePrices(stock.symbol, iYear, iMonth, r);
 
 
@@ -111,25 +118,29 @@ namespace StockAnalyzerWB
             webQuery.WebSelectionType = XlWebSelectionType.xlSpecifiedTables;
             webQuery.WebTables = webQueryTables;  
       
-           //     webQuery.WebTables = "12,13"; //14 is puts , 12 is header/date
-
             webQuery.WebFormatting = XlWebFormatting.xlWebFormattingRTF;
             webQuery.BackgroundQuery = false;
             webQuery.AdjustColumnWidth = false;
             webQuery.Refresh();
 
-            int firstRow = destRange.Row + 3;
-            Range r = destRange.Offset[2, 0]; // app.Selection;
+            int firstDataRow = destRange.Row + 3;   //first 3 rows are date info
+            Range r = destRange.Offset[2, 0]; 
+            if (sheet.Cells[firstDataRow, symbolColumn].value == null)
+            {
+                sheet.Cells[firstDataRow, symbolColumn].value = $"ERROR: Expected data from web query here- url: ${url}";
+                return r;
+            }
+
             r = r.End[XlDirection.xlDown];
             int lastRow = r.Row;
 
-            fillInFormulas(firstRow, lastRow);
+            fillInFormulas(firstDataRow, lastRow);
             return r;
         }
 
          void fillInFormulas(int firstRow, int lastRow)
         {
-            const int symbolColumn = 2;
+            
             const char bidColumn = 'J';
             const char askColumn = 'K';
             //=RTD("tos.rtd", , E$1, ".UPRO180119P"&$A6)
@@ -137,6 +148,7 @@ namespace StockAnalyzerWB
 
 
             string optionSymbol = sheet.Cells[firstRow, symbolColumn].value;
+           
             string baseSymbol = "." + optionSymbol.Remove(1 + optionSymbol.LastIndexOf(optionLetter));
             string bidCellFormula = $"=RTD(\"tos.rtd\", , {bidColumn}$1, \"{baseSymbol}\"&Strike_Price";
             string askCellFormula = $"=RTD(\"tos.rtd\", , {askColumn}$1, \"{baseSymbol}\"&Strike_Price";
