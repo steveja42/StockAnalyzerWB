@@ -7,7 +7,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 using Office = Microsoft.Office.Core;
 using Microsoft.Extensions.Logging;
 using Microsoft.Office.Interop.Excel;
-//a change for newBranch
+//a change for practicegit
 namespace StockAnalyzerWB
 {
     public struct Stock
