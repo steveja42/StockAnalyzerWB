@@ -17,7 +17,7 @@
     <SolutionID>008b1b71-5a63-4d89-92f3-b292d0da1a26</SolutionID>
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>C:\Users\Steven\publish\StockAnalyzerWB\</PublishUrl>
+    <PublishUrl>publish\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
     <ApplicationVersion>1.0.0.1</ApplicationVersion>
@@ -93,9 +93,18 @@
       <HintPath>..\packages\Microsoft.Extensions.Logging.Debug.1.0.0\lib\net451\Microsoft.Extensions.Logging.Debug.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.5\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -156,6 +165,7 @@
     <Compile Include="Sheet3.Designer.cs">
       <DependentUpon>Sheet3.Designer.xml</DependentUpon>
     </Compile>
+    <Compile Include="TDAmeritrade.cs" />
     <Compile Include="ThisWorkbook.cs">
       <DependentUpon>StockAnalyzerWB.xlsx</DependentUpon>
     </Compile>
@@ -185,6 +195,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <None Include="StockAnalyzerWB.xlsx" />
+    <None Include="StockAnalyzerWB_1_TemporaryKey.pfx" />
     <None Include="StockAnalyzerWB_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -207,6 +218,11 @@
       <DependentUpon>Sheet3.cs</DependentUpon>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="AuthData.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -215,10 +231,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>StockAnalyzerWB_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>StockAnalyzerWB_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>B5A29ED1C1044E9D8B4E1854625BCDDEAB09CA46</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>6AB3FDBD7D4E5BDE6836CB5D8FE3E0C864DE93C7</ManifestCertificateThumbprint>
   </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\OfficeTools\Microsoft.VisualStudio.Tools.Office.targets" Condition="'$(VSToolsPath)' != ''" />
@@ -227,10 +243,10 @@
       <FlavorProperties GUID="{BAA0C2D2-18E2-41B9-852F-F413020CAA33}">
         <ProjectProperties HostName="StockAnalyzerWB.xlsx" HostPackage="{3F2B7691-D1D1-402F-9370-2704A737CF60}" OfficeVersion="15.0" VstxVersion="4.0" ApplicationType="XLS" Language="CS" TemplatesPath="VSTOTemplates" DebugInfoExeName="C:\Program Files\Microsoft Office 15\root\Office15\Excel.exe" DebugInfoCommandLine="/x &quot;[$OUTPUT]StockAnalyzerWB.xlsx&quot;" />
         <Host Name="Excel Document" Path=".\StockAnalyzerWB.xlsx" GeneratedCodeNamespace="StockAnalyzerWB" PublishedHash="FEDBF9DFB69047C294E871B9B7BD428DCA8504F7">
-          <HostItem Name="Sheet1" Code="Sheet1.cs" CanonicalName="Sheet1" DisplayName="Sheet1" Blueprint="Sheet1.Designer.xml" GeneratedCode="Sheet1.Designer.cs" PublishedHash="CD1CCCE49203A916C11FD44FF1F75C13A93D9D86" />
-          <HostItem Name="Sheet2" Code="Sheet2.cs" CanonicalName="Sheet2" DisplayName="putTemplate" Blueprint="Sheet2.Designer.xml" GeneratedCode="Sheet2.Designer.cs" PublishedHash="2014FCC69FBD90B37E5FCB49D57B89B5BB8AF452" />
-          <HostItem Name="Sheet3" Code="Sheet3.cs" CanonicalName="Sheet3" DisplayName="callTemplate" Blueprint="Sheet3.Designer.xml" GeneratedCode="Sheet3.Designer.cs" PublishedHash="506B638D3FFEA7D27DA9B17468376AD9E93A139F" />
-          <HostItem Name="ThisWorkbook" Code="ThisWorkbook.cs" CanonicalName="ThisWorkbook" Blueprint="ThisWorkbook.Designer.xml" GeneratedCode="ThisWorkbook.Designer.cs" PublishedHash="343B195C37AE3C1419959A25102FA0F5A171C583" />
+          <HostItem Name="Sheet1" Code="Sheet1.cs" CanonicalName="Sheet1" PublishedHash="CD1CCCE49203A916C11FD44FF1F75C13A93D9D86" DisplayName="Sheet1" Blueprint="Sheet1.Designer.xml" GeneratedCode="Sheet1.Designer.cs" />
+          <HostItem Name="Sheet2" Code="Sheet2.cs" CanonicalName="Sheet2" PublishedHash="2014FCC69FBD90B37E5FCB49D57B89B5BB8AF452" DisplayName="putTemplate" Blueprint="Sheet2.Designer.xml" GeneratedCode="Sheet2.Designer.cs" />
+          <HostItem Name="Sheet3" Code="Sheet3.cs" CanonicalName="Sheet3" PublishedHash="506B638D3FFEA7D27DA9B17468376AD9E93A139F" DisplayName="callTemplate" Blueprint="Sheet3.Designer.xml" GeneratedCode="Sheet3.Designer.cs" />
+          <HostItem Name="ThisWorkbook" Code="ThisWorkbook.cs" CanonicalName="ThisWorkbook" PublishedHash="343B195C37AE3C1419959A25102FA0F5A171C583" Blueprint="ThisWorkbook.Designer.xml" GeneratedCode="ThisWorkbook.Designer.cs" />
         </Host>
       </FlavorProperties>
     </VisualStudio>

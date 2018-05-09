@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
 using Microsoft.Office.Interop.Excel;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace StockAnalyzerWB
 {
@@ -34,13 +36,16 @@ namespace StockAnalyzerWB
         enum OptionType { PUT, CALL }
         enum TemplateSheet { putTemplate, callTemplate };
         enum OptionLetter { P, C }
-
+        enum SheetColumn { strike=1,symbol,last,chg,bid,ask};
+        enum SheetRows { header=1,underlying,dataStart};
         protected string optionType;
         protected string templateSheetName;
         protected string optionLetter;
         protected string webQueryTables; // 12 is header/date, 14 is puts 
+        OptionChain ochain;
 
-        const int symbolColumn = 2;
+        const int UnderlyingRow = 2;
+        const int FirstDataRow = 3;
 
         Workbook outputWorkbook;
          Microsoft.Office.Interop.Excel.Application app;
@@ -65,10 +70,22 @@ namespace StockAnalyzerWB
         }
         //makeSheet - fills in a new sheet with option prices for the coming 2 Januarys and the upcoming 2 months
         public void makeSheet()
-        { 
+        {
+            try
+            {
+                ochain = TDAmeritrade.GetOptionChain(stock.symbol, $"{optionType}").Result;
+            }
+            catch (Exception e)
+            {
+                string sz = $"ERROR: {e.Message} ";
+                if (e.InnerException != null)
+                    sz+= e.InnerException.Message;
+                MessageBox.Show(sz, "Error");
+                //sheet.Cells[SheetRows.dataStart, SheetColumn.symbol].value = sz; //x
+                return;
+            }
+
             app = sourceWorkbook.Application;
-
-
             outputWorkbook = getOpenOrCreateWorkbook(sourceWorkbook);
             outputWorkbook.Activate();
 
@@ -84,24 +101,25 @@ namespace StockAnalyzerWB
                 sheet.Name = stock.symbol + $"-{optionType}-" + DateTime.Now.ToString("d.h.m.s");
 
             }
-            sheet.Cells[2, 2].value = stock.symbol;
-            sheet.Cells[2, 3].Formula = stock.lastPriceFormula;
-            
+            sheet.Cells[SheetRows.underlying, SheetColumn.symbol].value = stock.symbol;
+            sheet.Cells[SheetRows.underlying, SheetColumn.last].Formula = stock.lastPriceFormula;
+
+          
 
             int iYear = DateTime.Today.Year;
             int iMonth = DateTime.Today.Month;
-            Range r = sheet.Cells[3, 1];
-            r = GetOptionStrikePrices(stock.symbol, iYear + 2, 1, r);
-            r = r.Offset[2, 0];
-            r = GetOptionStrikePrices(stock.symbol, iYear + 1, 1, r);
-            r = r.Offset[2, 0];
+            int Row = FirstDataRow;
+            Row = AddOptionData(stock.symbol, iYear + 2, 1, Row);
+            Row += 2;
+            Row = AddOptionData(stock.symbol, iYear + 1, 1, Row);
+            Row += 2;
 
             if (iMonth != 12)  //january is already done above
             {
-                r = GetOptionStrikePrices(stock.symbol, (iMonth == 12 ? iYear + 1 : iYear), (iMonth + 1) % 12, r);
-                r = r.Offset[2, 0];
+                Row = AddOptionData(stock.symbol, (iMonth == 12 ? iYear + 1 : iYear), (iMonth + 1) % 12, Row);
+                Row += 2;
             }
-            r = GetOptionStrikePrices(stock.symbol, iYear, iMonth, r);
+            Row = AddOptionData(stock.symbol, iYear, iMonth, Row);
 
 
             foreach (Range r2 in sheet.Range["N5:Y300"].Cells)
@@ -111,31 +129,56 @@ namespace StockAnalyzerWB
 
             sheet.Range["A3"].Select();
         }
-         Range GetOptionStrikePrices(string stockSymbol, int iYear, int iMonth, Range destRange)
-        {
-            string url = $"http://finance.yahoo.com/q/op?s={stockSymbol}&m={iYear}-{iMonth:00}"; //ex:  "URL;http://finance.yahoo.com/q/op?s=MSFT&m=2018-01"
-            QueryTable webQuery = sheet.QueryTables.Add("URL;" + url, destRange);
-            webQuery.WebSelectionType = XlWebSelectionType.xlSpecifiedTables;
-            webQuery.WebTables = webQueryTables;  
-      
-            webQuery.WebFormatting = XlWebFormatting.xlWebFormattingRTF;
-            webQuery.BackgroundQuery = false;
-            webQuery.AdjustColumnWidth = false;
-            webQuery.Refresh();
 
-            int firstDataRow = destRange.Row + 3;   //first 3 rows are date info
-            Range r = destRange.Offset[2, 0]; 
-            if (sheet.Cells[firstDataRow, symbolColumn].value == null)
+     
+        //https://api.tdameritrade.com/v1/marketdata/chains GET /v1/marketdata/chains?apikey=SIRSNEEZ%40AMER.OAUTHAP&symbol=TSLA&contractType=PUT&strikeCount=1&optionType=S
+
+
+//iRow is where to put the data
+
+        int AddOptionData(string stockSymbol, int iYear, int iMonth, int iRow)
+        {
+            int firstDataRow = iRow + 1;   //first  row is Epiration Date info
+            string date = $"{iYear}-{iMonth:00}";
+            ExpirationDate ExpDateItem = null;
+            string ExpDate = null;
+            
+            Dictionary<string, ExpirationDate> ExpDates = optionType == "PUT" ? ochain.putExpDateMap : ochain.callExpDateMap;
+            foreach (var item in ExpDates)
             {
-                sheet.Cells[firstDataRow, symbolColumn].value = $"ERROR: Expected data from web query here- url: ${url}";
-                return r;
+                if (0 == string.Compare(item.Key, 0, date,0,date.Length)) {
+                    ExpDate = item.Key;
+                    ExpDateItem = item.Value;
+                    break;
+                }
             }
 
-            r = r.End[XlDirection.xlDown];
-            int lastRow = r.Row;
+            if (ExpDateItem == null)
+                return iRow;
 
-            fillInFormulas(firstDataRow, lastRow);
-            return r;
+            string SymbolPrefix = $".{stockSymbol}" + ExpDate.Substring(2, 2) + ExpDate.Substring(5, 2) + ExpDate.Substring(8, 2) + optionLetter;
+
+            sheet.Cells[iRow, 1].Value = optionType;
+            sheet.Cells[iRow, 2].Value = ExpDate;
+            sheet.Cells[iRow, 2].Font.Bold = true;
+            sheet.Cells[iRow, 2].Font.Size = 12;
+
+            foreach (var item in ExpDateItem)
+            {
+                ++iRow;
+                sheet.Cells[iRow, SheetColumn.strike].Value = item.Key;
+                sheet.Cells[iRow, SheetColumn.symbol].Value = SymbolPrefix + $"{item.Key}";
+                sheet.Cells[iRow, SheetColumn.last].Value = item.Value[0].last;
+                sheet.Cells[iRow, SheetColumn.bid].Value = item.Value[0].bid;
+                sheet.Cells[iRow, SheetColumn.ask].Value = item.Value[0].ask;
+            }
+
+            //Range r = destRange.Offset[2, 0];
+            //r = r.End[XlDirection.xlDown];
+            //int lastRow = r.Row;
+
+            fillInFormulas(firstDataRow, iRow);
+            return iRow;
         }
 
          void fillInFormulas(int firstRow, int lastRow)
@@ -147,11 +190,11 @@ namespace StockAnalyzerWB
             //=RTD("tos.rtd", , E$1, ".UPRO180119P"&Strike_Price)
 
 
-            string optionSymbol = sheet.Cells[firstRow, symbolColumn].value;
+            string optionSymbol = sheet.Cells[firstRow, SheetColumn.symbol].value;
            
             string baseSymbol = "." + optionSymbol.Remove(1 + optionSymbol.LastIndexOf(optionLetter));
-            string bidCellFormula = $"=RTD(\"tos.rtd\", , {bidColumn}$1, \"{baseSymbol}\"&Strike_Price";
-            string askCellFormula = $"=RTD(\"tos.rtd\", , {askColumn}$1, \"{baseSymbol}\"&Strike_Price";
+            string bidCellFormula = $"=RTD(\"tos.rtd\", , {bidColumn}$1, Symbol";
+            string askCellFormula = $"=RTD(\"tos.rtd\", , {askColumn}$1, Symbol";
             sheet.Range[$"{bidColumn}{firstRow}:{bidColumn}{lastRow}"].Value = bidCellFormula;
             sheet.Range[$"{askColumn}{firstRow}:{askColumn}{lastRow}"].Value = askCellFormula;
 
