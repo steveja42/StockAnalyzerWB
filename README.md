@@ -10,7 +10,11 @@ So to use this you will need to register as a developer at TD Ameritrade.
 
 
 How to Install:
-Register to create a Developer Account at https://developer.tdameritrade.com/ .
-Register an app there to get your "OAuth User ID".
-Edit  "publish\Application Files\StockAnalyzerWB_1_1_0_1\AuthData.txt.deploy" in notepad, and put your "OAuth User ID" on the first line of the file (by itself).
-run "publish\setup.exe"
+
+1.Register to create a Developer Account at https://developer.tdameritrade.com/ .
+
+2. Register an app there to get your "OAuth User ID".
+
+3. Edit  "publish\Application Files\StockAnalyzerWB_1_1_0_1\AuthData.txt.deploy" in notepad, and put your "OAuth User ID" on the first line of the file (by itself).
+
+4. run "publish\setup.exe"
