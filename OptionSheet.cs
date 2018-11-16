@@ -8,25 +8,21 @@ namespace StockAnalyzerWB
 {
     class CallOptionSheet : OptionSheet
     {
-        public CallOptionSheet(Workbook sourceWorkbook, Stock? stockIn) : base(sourceWorkbook, stockIn)
+        public CallOptionSheet(Workbook sourceWorkbook, string stockIn) : base(sourceWorkbook, stockIn)
         {
             optionType = "CALL";
             templateSheetName = "callTemplate";
             optionLetter = "C";
-            webQueryTables = "8,10"; // 8 is header/date, 10 is calls
-
         }
     }
 
     class PutOptionSheet:OptionSheet
     {
-        public PutOptionSheet(Workbook sourceWorkbook, Stock? stockIn) : base(sourceWorkbook, stockIn)
+        public PutOptionSheet(Workbook sourceWorkbook, string stockIn) : base(sourceWorkbook, stockIn)
         {
             optionType = "PUT";
             templateSheetName = "putTemplate";
             optionLetter = "P";
-            webQueryTables = "12,14"; // 12 is header/date, 14 is puts 
-
         }
        
     }
@@ -41,7 +37,6 @@ namespace StockAnalyzerWB
         protected string optionType;
         protected string templateSheetName;
         protected string optionLetter;
-        protected string webQueryTables; // 12 is header/date, 14 is puts 
         OptionChain ochain;
 
         const int UnderlyingRow = 2;
@@ -51,10 +46,10 @@ namespace StockAnalyzerWB
          Microsoft.Office.Interop.Excel.Application app;
          Worksheet sheet;
          Workbook sourceWorkbook;
-        Stock stock;
+        string stockSymbol;
         static ILogger logger;
 
-        protected OptionSheet(Workbook sourceWorkbook, Stock? stockIn)
+        protected OptionSheet(Workbook sourceWorkbook, string stockIn)
         {
             if (logger == null)
             {
@@ -64,16 +59,17 @@ namespace StockAnalyzerWB
 
             }
 
-
-            stock = (Stock)stockIn;
+            stockSymbol = stockIn;
             this.sourceWorkbook = sourceWorkbook;
         }
-        //makeSheet - fills in a new sheet with option prices for the coming 2 Januarys and the upcoming 2 months
-        public void makeSheet()
+        //makeSheet - fills in a new sheet with option prices for the provided option dates
+        public void makeSheet(List<string> OptionDates)
         {
+            if (OptionDates.Count == 0)
+                return;
             try
             {
-                ochain = TDAmeritrade.GetOptionChain(stock.symbol, $"{optionType}").Result;
+                ochain = TDAmeritrade.GetOptionChain(stockSymbol, $"{optionType}").Result;
             }
             catch (Exception e)
             {
@@ -84,44 +80,52 @@ namespace StockAnalyzerWB
                 //sheet.Cells[SheetRows.dataStart, SheetColumn.symbol].value = sz; //x
                 return;
             }
+            if (ochain == null)
+                return;
 
             app = sourceWorkbook.Application;
-            outputWorkbook = getOpenOrCreateWorkbook(sourceWorkbook);
+            outputWorkbook = openOrCreateWorkbook(sourceWorkbook);
             outputWorkbook.Activate();
 
             sourceWorkbook.Sheets[templateSheetName].Copy(outputWorkbook.Sheets[1]);// .ActiveSheet);
             sheet = outputWorkbook.Sheets[templateSheetName];
             try
             {
-                sheet.Name = stock.symbol + $"-{optionType}-" + DateTime.Now.ToString("d.h.m");
+                sheet.Name = stockSymbol + $"-{optionType}-" + DateTime.Now.ToString("d.h.m");
 
             }
             catch
             {
-                sheet.Name = stock.symbol + $"-{optionType}-" + DateTime.Now.ToString("d.h.m.s");
+                sheet.Name = stockSymbol + $"-{optionType}-" + DateTime.Now.ToString("d.h.m.s");
 
             }
-            sheet.Cells[SheetRows.underlying, SheetColumn.symbol].value = stock.symbol;
-            sheet.Cells[SheetRows.underlying, SheetColumn.last].Formula = stock.lastPriceFormula;
+            sheet.Cells[SheetRows.underlying, SheetColumn.symbol].value = stockSymbol;
+            sheet.Cells[SheetRows.underlying, SheetColumn.last].Formula = @"= RTD(""tos.rtd"", , ""LAST"", Symbol)";
+            int Row = FirstDataRow;
 
-          
+            foreach (string s in OptionDates)
+            {
+                Row = AddOptionData(stockSymbol, s, Row) + 2;
 
+            }
+            /*
             int iYear = DateTime.Today.Year;
             int iMonth = DateTime.Today.Month;
-            int Row = FirstDataRow;
-            Row = AddOptionData(stock.symbol, iYear + 2, 1, Row);
+
+
+            Row = AddOptionData(stockSymbol, iYear + 2, 1, Row);
             Row += 2;
-            Row = AddOptionData(stock.symbol, iYear + 1, 1, Row);
+            Row = AddOptionData(stockSymbol, iYear + 1, 1, Row);
             Row += 2;
 
             if (iMonth != 12)  //january is already done above
             {
-                Row = AddOptionData(stock.symbol, (iMonth == 12 ? iYear + 1 : iYear), (iMonth + 1) % 12, Row);
+                Row = AddOptionData(stockSymbol, (iMonth == 12 ? iYear + 1 : iYear), (iMonth + 1) % 12, Row);
                 Row += 2;
             }
-            Row = AddOptionData(stock.symbol, iYear, iMonth, Row);
+            Row = AddOptionData(stockSymbol, iYear, iMonth, Row);
 
-
+    */
             foreach (Range r2 in sheet.Range["N5:Y300"].Cells)
             {
                 r2.Errors[XlErrorChecks.xlInconsistentFormula].Ignore = true;
@@ -136,14 +140,16 @@ namespace StockAnalyzerWB
 
 //iRow is where to put the data
 
-        int AddOptionData(string stockSymbol, int iYear, int iMonth, int iRow)
+        int AddOptionData(string stockSymbol, string date, int iRow)
         {
             int firstDataRow = iRow + 1;   //first  row is Epiration Date info
-            string date = $"{iYear}-{iMonth:00}";
+            //string date = $"{iYear}-{iMonth:00}";
             ExpirationDate ExpDateItem = null;
             string ExpDate = null;
             
             Dictionary<string, ExpirationDate> ExpDates = optionType == "PUT" ? ochain.putExpDateMap : ochain.callExpDateMap;
+
+            
             foreach (var item in ExpDates)
             {
                 if (0 == string.Compare(item.Key, 0, date,0,date.Length)) {
@@ -154,7 +160,10 @@ namespace StockAnalyzerWB
             }
 
             if (ExpDateItem == null)
+            {
+                sheet.Cells[iRow, 2].Value = $"Expiration Date not found: {ExpDate}";
                 return iRow;
+            }
 
             string SymbolPrefix = $".{stockSymbol}" + ExpDate.Substring(2, 2) + ExpDate.Substring(5, 2) + ExpDate.Substring(8, 2) + optionLetter;
 
@@ -167,15 +176,12 @@ namespace StockAnalyzerWB
             {
                 ++iRow;
                 sheet.Cells[iRow, SheetColumn.strike].Value = item.Key;
-                sheet.Cells[iRow, SheetColumn.symbol].Value = SymbolPrefix + $"{item.Key}";
+                string strikePrice = item.Key.Remove(item.Key.LastIndexOf('.'));
+                sheet.Cells[iRow, SheetColumn.symbol].Value = SymbolPrefix + strikePrice;
                 sheet.Cells[iRow, SheetColumn.last].Value = item.Value[0].last;
                 sheet.Cells[iRow, SheetColumn.bid].Value = item.Value[0].bid;
                 sheet.Cells[iRow, SheetColumn.ask].Value = item.Value[0].ask;
             }
-
-            //Range r = destRange.Offset[2, 0];
-            //r = r.End[XlDirection.xlDown];
-            //int lastRow = r.Row;
 
             fillInFormulas(firstDataRow, iRow);
             return iRow;
@@ -186,13 +192,7 @@ namespace StockAnalyzerWB
             
             const char bidColumn = 'J';
             const char askColumn = 'K';
-            //=RTD("tos.rtd", , E$1, ".UPRO180119P"&$A6)
-            //=RTD("tos.rtd", , E$1, ".UPRO180119P"&Strike_Price)
-
-
-            string optionSymbol = sheet.Cells[firstRow, SheetColumn.symbol].value;
-           
-            string baseSymbol = "." + optionSymbol.Remove(1 + optionSymbol.LastIndexOf(optionLetter));
+            
             string bidCellFormula = $"=RTD(\"tos.rtd\", , {bidColumn}$1, Symbol";
             string askCellFormula = $"=RTD(\"tos.rtd\", , {askColumn}$1, Symbol";
             sheet.Range[$"{bidColumn}{firstRow}:{bidColumn}{lastRow}"].Value = bidCellFormula;
@@ -200,7 +200,8 @@ namespace StockAnalyzerWB
 
         }
         
-         Workbook getOpenOrCreateWorkbook(Workbook sourceWorkbook)
+        //opens workbook if it exists, else creates it
+         Workbook openOrCreateWorkbook(Workbook sourceWorkbook)
         {
             Workbook wb;
             string name = "optiondata " + DateTime.Now.ToString("yyyy-MMM") + ".xlsx";

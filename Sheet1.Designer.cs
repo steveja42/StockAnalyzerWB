@@ -19,14 +19,22 @@ namespace StockAnalyzerWB {
         
         internal Microsoft.Office.Tools.Excel.NamedRange Sheet1_Symbol;
         
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "14.0.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "15.0.0.0")]
         private global::System.Object missing = global::System.Type.Missing;
         
-        internal Microsoft.Office.Tools.Excel.Controls.Label InstructionsLabel;
+        internal Microsoft.Office.Tools.Excel.Controls.Label label0;
         
         internal Microsoft.Office.Tools.Excel.Controls.Button buttonGetPutOptions;
         
         internal Microsoft.Office.Tools.Excel.Controls.Button buttonGetCallOptions;
+        
+        internal Microsoft.Office.Tools.Excel.Controls.ListBox listBoxOptionDates;
+        
+        internal Microsoft.Office.Tools.Excel.Controls.Label label1;
+        
+        internal Microsoft.Office.Tools.Excel.Controls.TextBox textBoxStockSymbol;
+        
+        internal Microsoft.Office.Tools.Excel.Controls.Label label2;
         
         /// 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -37,7 +45,7 @@ namespace StockAnalyzerWB {
         
         /// 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "14.0.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "15.0.0.0")]
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         protected override void Initialize() {
             base.Initialize();
@@ -51,7 +59,7 @@ namespace StockAnalyzerWB {
         
         /// 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "14.0.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "15.0.0.0")]
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         protected override void FinishInitialization() {
             this.InternalStartup();
@@ -60,7 +68,7 @@ namespace StockAnalyzerWB {
         
         /// 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "14.0.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "15.0.0.0")]
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         protected override void InitializeDataBindings() {
             this.BeginInitialization();
@@ -70,7 +78,7 @@ namespace StockAnalyzerWB {
         
         /// 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "14.0.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "15.0.0.0")]
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         private void InitializeCachedData() {
             if ((this.DataHost == null)) {
@@ -83,14 +91,14 @@ namespace StockAnalyzerWB {
         
         /// 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "14.0.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "15.0.0.0")]
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         private void InitializeData() {
         }
         
         /// 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "14.0.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "15.0.0.0")]
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         private void BindToData() {
         }
@@ -118,7 +126,7 @@ namespace StockAnalyzerWB {
         
         /// 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "14.0.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "15.0.0.0")]
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         private void BeginInitialization() {
             this.BeginInit();
@@ -127,7 +135,7 @@ namespace StockAnalyzerWB {
         
         /// 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "14.0.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "15.0.0.0")]
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         private void EndInitialization() {
             this.Sheet1_Symbol.EndInit();
@@ -136,42 +144,75 @@ namespace StockAnalyzerWB {
         
         /// 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "14.0.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "15.0.0.0")]
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         private void InitializeControls() {
             this.Sheet1_Symbol = Globals.Factory.CreateNamedRange(null, null, "Sheet1!Symbol", "Sheet1_Symbol", this);
-            this.InstructionsLabel = new Microsoft.Office.Tools.Excel.Controls.Label(Globals.Factory, this.ItemProvider, this.HostContext, "1FE18F5AD1E194144F51935C17551841176BE1", "1FE18F5AD1E194144F51935C17551841176BE1", this, "InstructionsLabel");
+            this.label0 = new Microsoft.Office.Tools.Excel.Controls.Label(Globals.Factory, this.ItemProvider, this.HostContext, "1FE18F5AD1E194144F51935C17551841176BE1", "1FE18F5AD1E194144F51935C17551841176BE1", this, "label0");
             this.buttonGetPutOptions = new Microsoft.Office.Tools.Excel.Controls.Button(Globals.Factory, this.ItemProvider, this.HostContext, "2F7211FB52C91C24D2B2BA4A298A1A63904182", "2F7211FB52C91C24D2B2BA4A298A1A63904182", this, "buttonGetPutOptions");
             this.buttonGetCallOptions = new Microsoft.Office.Tools.Excel.Controls.Button(Globals.Factory, this.ItemProvider, this.HostContext, "34636AAF4320BD34A693AB3B3D5BF58600F2E3", "34636AAF4320BD34A693AB3B3D5BF58600F2E3", this, "buttonGetCallOptions");
+            this.listBoxOptionDates = new Microsoft.Office.Tools.Excel.Controls.ListBox(Globals.Factory, this.ItemProvider, this.HostContext, "9ED91803D9EF63948F19A14F9F716906B5A769", "9ED91803D9EF63948F19A14F9F716906B5A769", this, "listBoxOptionDates");
+            this.label1 = new Microsoft.Office.Tools.Excel.Controls.Label(Globals.Factory, this.ItemProvider, this.HostContext, "1CDB106FD1F2A1143B119F2D1037FFB3168251", "1CDB106FD1F2A1143B119F2D1037FFB3168251", this, "label1");
+            this.textBoxStockSymbol = new Microsoft.Office.Tools.Excel.Controls.TextBox(Globals.Factory, this.ItemProvider, this.HostContext, "1D7AF4459173B914D501A3F41CFBC00960E0C1", "1D7AF4459173B914D501A3F41CFBC00960E0C1", this, "textBoxStockSymbol");
+            this.label2 = new Microsoft.Office.Tools.Excel.Controls.Label(Globals.Factory, this.ItemProvider, this.HostContext, "15CE8BC081D2F914EDD19FC51B78F0DC5E6F61", "15CE8BC081D2F914EDD19FC51B78F0DC5E6F61", this, "label2");
         }
         
         /// 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "14.0.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "15.0.0.0")]
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         private void InitializeComponents() {
             // 
-            // InstructionsLabel
+            // label0
             // 
-            this.InstructionsLabel.BackColor = System.Drawing.Color.Transparent;
-            this.InstructionsLabel.Name = "InstructionsLabel";
-            this.InstructionsLabel.Text = "Select a stock symbol then press a  button →";
+            this.label0.BackColor = System.Drawing.Color.Transparent;
+            this.label0.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F);
+            this.label0.Name = "label0";
+            this.label0.Text = "Enter a stock symbol above, or select  a symbol  in the sheet.";
             // 
             // buttonGetPutOptions
             // 
             this.buttonGetPutOptions.BackColor = System.Drawing.SystemColors.Control;
+            this.buttonGetPutOptions.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F);
             this.buttonGetPutOptions.ForeColor = System.Drawing.SystemColors.ControlText;
             this.buttonGetPutOptions.Name = "buttonGetPutOptions";
-            this.buttonGetPutOptions.Text = "Analyze Put Options";
+            this.buttonGetPutOptions.Text = "Show potential Put Option profits";
             this.buttonGetPutOptions.UseVisualStyleBackColor = false;
             // 
             // buttonGetCallOptions
             // 
             this.buttonGetCallOptions.BackColor = System.Drawing.SystemColors.Control;
+            this.buttonGetCallOptions.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F);
             this.buttonGetCallOptions.ForeColor = System.Drawing.SystemColors.ControlText;
             this.buttonGetCallOptions.Name = "buttonGetCallOptions";
-            this.buttonGetCallOptions.Text = "Analyze Call Options";
+            this.buttonGetCallOptions.Text = "Show potential Call Option profits";
             this.buttonGetCallOptions.UseVisualStyleBackColor = false;
+            // 
+            // listBoxOptionDates
+            // 
+            this.listBoxOptionDates.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F);
+            this.listBoxOptionDates.ItemHeight = 16;
+            this.listBoxOptionDates.Name = "listBoxOptionDates";
+            this.listBoxOptionDates.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            // 
+            // label1
+            // 
+            this.label1.BackColor = System.Drawing.Color.Transparent;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F);
+            this.label1.Name = "label1";
+            this.label1.Text = "Then select desired Option Dates.";
+            // 
+            // textBoxStockSymbol
+            // 
+            this.textBoxStockSymbol.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F);
+            this.textBoxStockSymbol.Name = "textBoxStockSymbol";
+            // 
+            // label2
+            // 
+            this.label2.BackColor = System.Drawing.Color.Transparent;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Name = "label2";
+            this.label2.Text = "Then choose an action.";
             // 
             // Sheet1_Symbol
             // 
@@ -179,9 +220,13 @@ namespace StockAnalyzerWB {
             // 
             // Sheet1
             // 
-            this.InstructionsLabel.BindingContext = this.BindingContext;
+            this.label0.BindingContext = this.BindingContext;
             this.buttonGetPutOptions.BindingContext = this.BindingContext;
             this.buttonGetCallOptions.BindingContext = this.BindingContext;
+            this.listBoxOptionDates.BindingContext = this.BindingContext;
+            this.label1.BindingContext = this.BindingContext;
+            this.textBoxStockSymbol.BindingContext = this.BindingContext;
+            this.label2.BindingContext = this.BindingContext;
         }
         
         /// 
@@ -193,7 +238,7 @@ namespace StockAnalyzerWB {
         
         /// 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "14.0.0.0")]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Tools.Office.ProgrammingModel.dll", "15.0.0.0")]
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         protected override void OnShutdown() {
             this.Sheet1_Symbol.Dispose();

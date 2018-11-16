@@ -12,30 +12,36 @@ namespace StockAnalyzerWB
     {
         static string BaseAddress = "https://api.tdameritrade.com";
         static string ApiKey = null;   //set this to your apikey, or put your api key in the first line of file AuthData.txt"
+        // returns the option chain data for a stock symbol into
+        //more info at https://developer.tdameritrade.com/option-chains/apis/get/marketdata/chains#
+        //strikeCount=1
 
-        public async static Task<OptionChain> GetOptionChain(string symbol, string contractType)
+        private static void ensureAuthorization()
         {
+            if (ApiKey == null)
+            {
+                try
+                {
+                    string[] lines = System.IO.File.ReadAllLines(System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory.ToString(), @".\AuthData.txt"));
+                    if (lines.Length > 0)
+                        ApiKey = System.Web.HttpUtility.UrlEncode(lines[0]);
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }
+        }
 
+        async static Task<HttpResponseMessage> getResponse(string RequestUri)
+        {
             using (var client = new HttpClient())
             {
-                if (ApiKey == null)
-                {
-                    try
-                    {
-                        string[] lines = System.IO.File.ReadAllLines(System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory.ToString(), @".\AuthData.txt"));
-                        if (lines.Length > 0)
-                            ApiKey = System.Web.HttpUtility.UrlEncode(lines[0]);
-                    }
-                    catch (Exception e)
-                    {
-                        throw e;
-                    }
-                }
+
                 client.BaseAddress = new Uri(BaseAddress);
                 client.DefaultRequestHeaders.Add("User-Agent", "Anything");
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                string RequestUri = $"/v1/marketdata/chains?apikey={ApiKey}&symbol={symbol}&contractType={contractType}&includeQuotes=TRUE";
                 HttpResponseMessage response = null;
                 try
                 {
@@ -46,13 +52,61 @@ namespace StockAnalyzerWB
                 {
                     //string sz = $"ERROR: {e.Message} " + e?.InnerException.Message;
                     throw (e);
-                    
+
                 }
-                
-                string result = await response.Content.ReadAsStringAsync();
-                var ochain = response.Content.ReadAsAsync<OptionChain>().Result;
-                return ochain;
+                return response;
+
             }
+        }
+
+        public async static Task<List<string>> getOptionDates(string symbol)
+        {
+            if (symbol == null || symbol == "")
+                return null;
+            HttpResponseMessage response;
+            ensureAuthorization();
+            string RequestUri = $"/v1/marketdata/chains?apikey={ApiKey}&symbol={symbol}&contractType=PUT&strikeCount=1";
+            try
+            {
+                response = await getResponse(RequestUri);
+            }
+            catch
+            {
+                return null;
+            }
+            string result = await response.Content.ReadAsStringAsync();
+            var ochain = response.Content.ReadAsAsync<OptionChain>().Result;
+            var optionDates = new List<string>() ;
+            foreach (var item in ochain.putExpDateMap)
+            {
+                optionDates.Add(item.Key.Remove(item.Key.LastIndexOf(':')));
+
+            }
+            return optionDates;
+
+        }
+
+
+        public async static Task<OptionChain> GetOptionChain(string symbol, string contractType)
+        {
+            if (symbol == null || symbol == "")
+                return null;
+            HttpResponseMessage response;
+            ensureAuthorization();
+            
+            string RequestUri = $"/v1/marketdata/chains?apikey={ApiKey}&symbol={symbol}&contractType={contractType}&includeQuotes=TRUE&strikeCount=40";
+            try
+            {
+                response = await getResponse(RequestUri);
+            }
+            catch
+            {
+                return null;
+            }
+            string result = await response.Content.ReadAsStringAsync();
+            var ochain = response.Content.ReadAsAsync<OptionChain>().Result;
+            return ochain;
+            
         }
     }
 
@@ -83,6 +137,11 @@ namespace StockAnalyzerWB
         public decimal ask { get; set; }
         public decimal last { get; set; }
     }
+
+    public class ExpirationDates : Dictionary<string, ExpirationDate>
+    {
+
+    }
     public class OptionChain
     {
         public string symbol { get; set; }
@@ -90,8 +149,9 @@ namespace StockAnalyzerWB
         public UnderLying underlying;
         public string isDelayed { get; set; }
         public string underlyingPrice { get; set; }
-        public Dictionary<string, ExpirationDate> callExpDateMap;
-
+       // public ExpirationDates callExpDateMap;
+      //  public ExpirationDates putExpDateMap;
+       public Dictionary<string, ExpirationDate> callExpDateMap;
         public Dictionary<string, ExpirationDate> putExpDateMap;
 
         public override string ToString()
